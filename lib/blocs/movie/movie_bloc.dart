@@ -28,8 +28,9 @@ class MovieBloc extends Bloc<MovieEvent, MovieState> {
       }
       emit(state.copyWith(
         message: response.message,
-        status: StateStatus.success,
-        listData: response.data,
+        status:
+            response.success == null ? StateStatus.success : StateStatus.error,
+        listData: response.results,
       ));
     } catch (e, stacktrace) {
       if (kDebugMode) {
