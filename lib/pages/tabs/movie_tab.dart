@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:movie_apps/components/custom_text.dart';
 import 'package:movie_apps/pages/detail_page.dart';
 import 'package:movie_apps/utils/animation.dart';
@@ -241,30 +239,30 @@ class _MovieTabState extends State<MovieTab> {
     );
   }
 
-  TextFormField _searchBarWidget() {
-    return TextFormField(
-      controller: _searchController,
-      cursorColor: AppColors.white,
-      style: GoogleFonts.poppins(
-        color: AppColors.white,
-        fontSize: 12,
-      ),
-      decoration: InputDecoration(
-        hintText: 'Search for movies',
-        hintStyle: GoogleFonts.poppins(
-          color: AppColors.inputField,
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        filled: true,
-        isDense: true,
-        fillColor: const Color(0xff212021),
-        suffixIcon: Icon(
-          CupertinoIcons.search,
-          color: AppColors.white,
-        ),
-      ),
-    );
-  }
+  // TextFormField _searchBarWidget() {
+  //   return TextFormField(
+  //     controller: _searchController,
+  //     cursorColor: AppColors.white,
+  //     style: GoogleFonts.poppins(
+  //       color: AppColors.white,
+  //       fontSize: 12,
+  //     ),
+  //     decoration: InputDecoration(
+  //       hintText: 'Search for movies',
+  //       hintStyle: GoogleFonts.poppins(
+  //         color: AppColors.inputField,
+  //       ),
+  //       border: OutlineInputBorder(
+  //         borderRadius: BorderRadius.circular(16),
+  //       ),
+  //       filled: true,
+  //       isDense: true,
+  //       fillColor: const Color(0xff212021),
+  //       suffixIcon: Icon(
+  //         CupertinoIcons.search,
+  //         color: AppColors.white,
+  //       ),
+  //     ),
+  //   );
+  // }
 }
