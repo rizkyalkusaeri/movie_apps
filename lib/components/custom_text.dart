@@ -19,6 +19,8 @@ class CustomText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
+      maxLines: 3,
+      textAlign: TextAlign.justify,
       style: GoogleFonts.poppins(
         fontSize: fontSize,
         color: color,
