@@ -22,15 +22,22 @@ class MovieBloc extends Bloc<MovieEvent, MovieState> {
     emit(state.copyWith(status: StateStatus.initial));
 
     try {
-      var response = await repository.getNowPlayingMovies();
-      if (kDebugMode) {
-        print(response.message);
-      }
+      var resNowPlayingMovies = await repository.getNowPlayingMovies();
+      var resPopularMovies = await repository.getPopularMovies();
+      var resUpcomingMovies = await repository.getUpcomingMovies();
+      // if (kDebugMode) {
+      //   print(resNowPlayingMovies.message);
+      // }
+
+      var resMessage =
+          '${resNowPlayingMovies.message ?? ''}${resPopularMovies.message ?? ''}${resUpcomingMovies.message ?? ''}';
+
       emit(state.copyWith(
-        message: response.message,
-        status:
-            response.success == null ? StateStatus.success : StateStatus.error,
-        listData: response.results,
+        listNowPlayingMovies: resNowPlayingMovies.results,
+        listPopularMovies: resPopularMovies.results,
+        listUpcomingMovies: resUpcomingMovies.results,
+        message: resMessage,
+        status: resMessage.isNotEmpty ? StateStatus.error : StateStatus.success,
       ));
     } catch (e, stacktrace) {
       if (kDebugMode) {

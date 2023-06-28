@@ -6,10 +6,6 @@ class MovieEvent extends Equatable {
 }
 
 class GetMovies extends MovieEvent {
-  final String type;
-
-  GetMovies(this.type);
-
   @override
-  List<Object?> get props => [type];
+  List<Object?> get props => [];
 }

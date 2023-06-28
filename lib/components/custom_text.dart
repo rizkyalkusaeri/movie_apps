@@ -8,11 +8,13 @@ class CustomText extends StatelessWidget {
     this.color = Colors.white,
     this.fontSize = 12,
     this.fontWeight = FontWeight.normal,
+    this.textAlign = TextAlign.justify,
   }) : super(key: key);
 
   final String text;
   final double fontSize;
   final Color color;
+  final TextAlign textAlign;
   final FontWeight fontWeight;
 
   @override
@@ -20,7 +22,7 @@ class CustomText extends StatelessWidget {
     return Text(
       text,
       maxLines: 3,
-      textAlign: TextAlign.justify,
+      textAlign: textAlign,
       style: GoogleFonts.poppins(
         fontSize: fontSize,
         color: color,

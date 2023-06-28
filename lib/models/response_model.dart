@@ -23,15 +23,23 @@ class SingleResponse<T> extends ApiResponse {
   factory SingleResponse.fromJson({
     required Map<String, dynamic> json,
     required T Function(Map<String, dynamic>) fromJsonModel,
+    required int statusCode,
+    required String message,
   }) {
     return SingleResponse(
-      statusCode: json['status_code'],
-      message: json['status_message'],
-      success: json['success'],
-      results: json['results'] != null ? fromJsonModel(json['results']) : null,
+      results: fromJsonModel(json),
+      statusCode: statusCode,
+      message: message,
     );
   }
 }
+
+// class ErrorResponse extends ApiResponse {
+//   ErrorResponse({
+//     super.statusCode,
+//     super.message,
+//   });
+// }
 
 class ListResponse<T> extends ApiResponse {
   ListResponse({

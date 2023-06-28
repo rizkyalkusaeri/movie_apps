@@ -5,26 +5,42 @@ import 'package:equatable/equatable.dart';
 class MovieState extends Equatable {
   final String message;
   final StateStatus status;
-  final List<Movie> listData;
+  final List<Movie> listNowPlayingMovies;
+  final List<Movie> listPopularMovies;
+  final List<Movie> listUpcomingMovies;
 
   const MovieState({
     this.message = '',
     this.status = StateStatus.initial,
-    List<Movie>? listData,
-  }) : listData = listData ?? const [];
+    List<Movie>? listNowPlayingMovies,
+    List<Movie>? listPopularMovies,
+    List<Movie>? listUpcomingMovies,
+  })  : listNowPlayingMovies = listNowPlayingMovies ?? const [],
+        listPopularMovies = listPopularMovies ?? const [],
+        listUpcomingMovies = listUpcomingMovies ?? const [];
 
   @override
-  List<Object?> get props => [message, status, listData];
+  List<Object?> get props => [
+        message,
+        status,
+        listNowPlayingMovies,
+        listPopularMovies,
+        listUpcomingMovies,
+      ];
 
   MovieState copyWith({
     String? message,
     StateStatus? status,
-    List<Movie>? listData,
+    List<Movie>? listNowPlayingMovies,
+    List<Movie>? listPopularMovies,
+    List<Movie>? listUpcomingMovies,
   }) {
     return MovieState(
       status: status ?? this.status,
       message: message ?? this.message,
-      listData: listData ?? this.listData,
+      listNowPlayingMovies: listNowPlayingMovies ?? this.listNowPlayingMovies,
+      listPopularMovies: listPopularMovies ?? this.listPopularMovies,
+      listUpcomingMovies: listUpcomingMovies ?? this.listUpcomingMovies,
     );
   }
 }
