@@ -1,4 +1,5 @@
 import 'package:movie_apps/data/app_services.dart';
+import 'package:movie_apps/models/cast_model.dart';
 import 'package:movie_apps/models/detail_movie_model.dart';
 import 'package:movie_apps/models/movie_model.dart';
 import 'package:movie_apps/models/response_model.dart';
@@ -20,7 +21,25 @@ class AppRepository {
     return services.getUpcomingMovies();
   }
 
-  Future<SingleResponse<DetailMovie>> getDetailMovie({required int id}) async {
-    return services.getDetailMovie(id: id);
+  Future<SingleResponse<DetailMovie>> getDetailMovie({
+    required int id,
+    required String type,
+  }) async {
+    return services.getDetailMovie(id: id, type: type);
+  }
+
+  Future<ListResponse<Movie>> getOnTheAirTv() async {
+    return services.getOnTheAirTv();
+  }
+
+  Future<ListResponse<Movie>> getPopularTv() async {
+    return services.getPopularTv();
+  }
+
+  Future<ListResponseOpt<CastModel>> getCast({
+    required int id,
+    required String type,
+  }) async {
+    return services.getCast(id: id, type: type);
   }
 }

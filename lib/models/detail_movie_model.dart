@@ -17,6 +17,7 @@ class DetailMovie {
   String status;
   String voteAverage;
   bool video;
+  String? numberOfEpisode;
 
   DetailMovie({
     required this.adult,
@@ -35,26 +36,28 @@ class DetailMovie {
     required this.homepage,
     required this.voteAverage,
     required this.status,
+    this.numberOfEpisode,
   });
 
   factory DetailMovie.fromJson(Map<String, dynamic> json) {
     return DetailMovie(
       adult: json['adult'],
-      backdropPath: json['backdrop_path'],
+      backdropPath: json['backdrop_path'] ?? '',
       genres: Genre.fromJsonList(json['genres']),
       id: json['id'],
       originalLanguage: json['original_language'],
-      originalTitle: json['original_title'],
-      overview: json['overview'],
+      originalTitle: json['original_title'] ?? json['original_name'],
+      overview: json['overview'] ?? 'No Overview yet',
       runtime: json['runtime'].toString(),
       popularity: json['popularity'],
-      posterPath: json['poster_path'],
-      releaseDate: json['release_date'],
-      title: json['title'],
-      video: json['video'],
-      homepage: json['homepage'],
+      posterPath: json['poster_path'] ?? '',
+      releaseDate: json['release_date'] ?? json['first_air_date'],
+      title: json['title'] ?? json['name'],
+      video: json['video'] ?? false,
+      homepage: json['homepage'] ?? '-',
       voteAverage: json['vote_average'].toString(),
       status: json['status'],
+      numberOfEpisode: json['status'],
     );
   }
 }

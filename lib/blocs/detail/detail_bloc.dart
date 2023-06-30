@@ -22,10 +22,19 @@ class DetailBloc extends Bloc<DetailEvent, DetailState> {
     emit(state.copyWith(status: StateStatus.initial));
 
     try {
-      var resDetailMovie = await repository.getDetailMovie(id: event.id);
+      var resDetailMovie = await repository.getDetailMovie(
+        id: event.id,
+        type: event.type,
+      );
+
+      var resCast = await repository.getCast(
+        id: event.id,
+        type: event.type,
+      );
 
       emit(state.copyWith(
         detailMovie: resDetailMovie.results,
+        listCast: resCast.results,
         message: resDetailMovie.message,
         status: resDetailMovie.statusCode != 200
             ? StateStatus.error

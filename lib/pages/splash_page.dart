@@ -35,8 +35,8 @@ class _SplashPageState extends State<SplashPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                width: 200,
-                height: 200,
+                width: 400,
+                height: 400,
                 decoration: const BoxDecoration(
                   image: DecorationImage(
                     image: AssetImage('assets/icons/logo.png'),

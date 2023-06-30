@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
+import 'package:movie_apps/models/cast_model.dart';
 import 'package:movie_apps/models/detail_movie_model.dart';
 import 'package:movie_apps/models/movie_model.dart';
 import 'package:movie_apps/models/response_model.dart';
@@ -70,8 +71,48 @@ class AppServices {
     );
   }
 
-  Future<SingleResponse<DetailMovie>> getDetailMovie({required int id}) async {
-    final response = await _httpClient.get(getUrl(url: '/movie/$id'));
+  Future<ListResponse<Movie>> getOnTheAirTv() async {
+    final response = await _httpClient.get(getUrl(url: '/tv/on_the_air'));
+
+    var jsonObject = jsonDecode(response.body);
+
+    return ListResponse.fromJson(
+      json: jsonObject,
+      fromJsonModel: Movie.fromJson,
+    );
+  }
+
+  Future<ListResponse<Movie>> getPopularTv() async {
+    final response = await _httpClient.get(getUrl(url: '/tv/popular'));
+
+    var jsonObject = jsonDecode(response.body);
+
+    return ListResponse.fromJson(
+      json: jsonObject,
+      fromJsonModel: Movie.fromJson,
+    );
+  }
+
+  Future<ListResponseOpt<CastModel>> getCast({
+    required int id,
+    required String type,
+  }) async {
+    final response = await _httpClient.get(getUrl(url: '/$type/$id/credits'));
+
+    var jsonObject = jsonDecode(response.body);
+
+    return ListResponseOpt.fromJson(
+      json: jsonObject,
+      key: 'cast',
+      fromJsonModel: CastModel.fromJson,
+    );
+  }
+
+  Future<SingleResponse<DetailMovie>> getDetailMovie({
+    required int id,
+    required String type,
+  }) async {
+    final response = await _httpClient.get(getUrl(url: '/$type/$id'));
 
     var jsonObject = jsonDecode(response.body);
 

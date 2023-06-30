@@ -67,3 +67,31 @@ class ListResponse<T> extends ApiResponse {
     );
   }
 }
+
+class ListResponseOpt<T> extends ApiResponse {
+  ListResponseOpt({
+    super.statusCode,
+    super.message,
+    super.success,
+    this.results,
+  });
+
+  final List<T>? results;
+
+  factory ListResponseOpt.fromJson({
+    required Map<String, dynamic> json,
+    required String key,
+    required T Function(Map<String, dynamic>) fromJsonModel,
+  }) {
+    fromJsonList(List list) {
+      return list.map((e) => fromJsonModel(e)).toList();
+    }
+
+    return ListResponseOpt(
+      statusCode: json['status_code'],
+      message: json['status_message'],
+      success: json['success'],
+      results: json[key] != null ? fromJsonList(json[key]) : [],
+    );
+  }
+}

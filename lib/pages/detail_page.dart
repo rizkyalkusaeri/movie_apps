@@ -8,14 +8,21 @@ import 'package:movie_apps/blocs/detail/detail_state.dart';
 import 'package:movie_apps/components/custom_error.dart';
 import 'package:movie_apps/components/custom_text.dart';
 import 'package:movie_apps/data/app_services.dart';
+import 'package:movie_apps/models/cast_model.dart';
 import 'package:movie_apps/models/detail_movie_model.dart';
 import 'package:movie_apps/utils/app_colors.dart';
 import 'package:movie_apps/utils/size_config.dart';
 import 'package:movie_apps/utils/state_status.dart';
+import 'package:shimmer/shimmer.dart';
 
 class DetailPage extends StatelessWidget {
-  const DetailPage({Key? key, required this.id}) : super(key: key);
+  const DetailPage({
+    Key? key,
+    required this.id,
+    required this.type,
+  }) : super(key: key);
   final int id;
+  final String type;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +45,7 @@ class DetailPage extends StatelessWidget {
             child: Scaffold(
               body: RefreshIndicator(
                 onRefresh: () {
-                  final refresh = bloc..add(GetDetailMovie(id: id));
+                  final refresh = bloc..add(GetDetailMovie(id: id, type: type));
 
                   return refresh.stream.first;
                 },
@@ -55,6 +62,116 @@ class DetailPage extends StatelessWidget {
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _listOfCastWidget({
+    required DetailState state,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(top: 12),
+      height: 180,
+      child: ListView.separated(
+        itemCount: state.listCast.length < 7 ? state.listCast.length : 7,
+        shrinkWrap: true,
+        scrollDirection: Axis.horizontal,
+        itemBuilder: (context, index) {
+          return state.status.isInitial
+              ? _listOfCastUnload()
+              : _listOfCastLoad(context, index, state.listCast);
+        },
+        separatorBuilder: (
+          BuildContext context,
+          int index,
+        ) {
+          return const SizedBox(
+            width: 12,
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _listOfCastLoad(
+      BuildContext context, int index, List<CastModel> listCast) {
+    var cast = listCast[index];
+    return Stack(
+      children: [
+        Container(
+          width: 130,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            image: DecorationImage(
+              image: NetworkImage(
+                cast.profilePath.isNotEmpty
+                    ? ASSET_URL + cast.profilePath
+                    : 'https://www.seekpng.com/png/detail/202-2024994_profile-icon-profile-logo-no-background.png',
+              ),
+              fit: BoxFit.cover,
+              repeat: ImageRepeat.noRepeat,
+            ),
+          ),
+        ),
+        Positioned(
+          bottom: 0,
+          child: Container(
+            width: 130,
+            height: 80,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: FractionalOffset.topCenter,
+                end: FractionalOffset.bottomCenter,
+                colors: [
+                  AppColors.primary.withOpacity(0.1),
+                  AppColors.primary,
+                ],
+                stops: const [0.0, 1.0],
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          bottom: 10,
+          width: SizeConfig.screenWidth! / 2.8,
+          child: Padding(
+            padding: const EdgeInsets.only(
+              left: 4,
+              right: 16,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CustomText(
+                  textAlign: TextAlign.left,
+                  text: cast.name,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                ),
+                CustomText(
+                  text: 'as ${cast.character}',
+                  fontSize: 12,
+                  textAlign: TextAlign.left,
+                ),
+              ],
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
+  Shimmer _listOfCastUnload() {
+    return Shimmer.fromColors(
+      baseColor: const Color(0xff212021),
+      highlightColor: Colors.black.withOpacity(0.8),
+      enabled: true,
+      child: Container(
+        width: 130,
+        decoration: BoxDecoration(
+          color: AppColors.lightGray,
+          borderRadius: BorderRadius.circular(16),
+        ),
       ),
     );
   }
@@ -86,7 +203,24 @@ class DetailPage extends StatelessWidget {
                 margin: const EdgeInsets.only(top: 2),
                 child: genreWidget(movie),
               ),
-
+              Container(
+                margin: const EdgeInsets.only(top: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const CustomText(
+                      text: 'Released on',
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                    CustomText(
+                      text: movie.releaseDate,
+                      fontWeight: FontWeight.w300,
+                      fontSize: 12,
+                    ),
+                  ],
+                ),
+              ),
               // _listOfInformationWidget(movie),
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 16),
@@ -99,13 +233,21 @@ class DetailPage extends StatelessWidget {
                       fontSize: 14,
                     ),
                     CustomText(
-                      text: movie.overview,
+                      text: movie.overview.isEmpty
+                          ? 'No overview yet'
+                          : movie.overview,
                       fontWeight: FontWeight.w300,
                       fontSize: 12,
                     ),
                   ],
                 ),
               ),
+              const CustomText(
+                text: 'Popular Cast',
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+              ),
+              _listOfCastWidget(state: state),
             ],
           ),
         ),
@@ -122,7 +264,9 @@ class DetailPage extends StatelessWidget {
             decoration: BoxDecoration(
               image: DecorationImage(
                 image: NetworkImage(
-                  ASSET_URL + movie.backdropPath,
+                  movie.backdropPath.isNotEmpty
+                      ? ASSET_URL + movie.backdropPath
+                      : 'https://upload.wikimedia.org/wikipedia/commons/b/b9/No_Cover.jpg',
                 ),
                 fit: BoxFit.cover,
               ),
@@ -160,7 +304,9 @@ class DetailPage extends StatelessWidget {
                   Row(
                     children: [
                       CustomText(
-                        text: '${movie.runtime} min | ',
+                        text: type == 'tv'
+                            ? '${movie.numberOfEpisode} Episode | '
+                            : '${movie.runtime} min | ',
                         fontSize: 12,
                       ),
                       CustomText(

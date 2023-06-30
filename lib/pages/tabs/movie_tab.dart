@@ -10,6 +10,7 @@ import 'package:movie_apps/components/custom_error.dart';
 import 'package:movie_apps/data/app_repository.dart';
 import 'package:movie_apps/data/app_services.dart';
 import 'package:movie_apps/models/movie_model.dart';
+import 'package:movie_apps/pages/see_all_movie.dart';
 import 'package:movie_apps/utils/state_status.dart';
 import 'package:movie_apps/blocs/movie/movie_bloc.dart';
 import 'package:movie_apps/blocs/movie/movie_state.dart';
@@ -40,15 +41,17 @@ class _MovieTabState extends State<MovieTab> {
   void initState() {
     _timer = Timer.periodic(const Duration(seconds: 5), (Timer timer) {
       // print('GO');
-      if (_activePage < 4) {
-        _activePage++;
-        _pageController.animateToPage(
-          _activePage,
-          duration: const Duration(milliseconds: 350),
-          curve: Curves.easeIn,
-        );
-      } else {
-        _activePage = 0;
+      if (_pageController.hasClients) {
+        if (_activePage < 4) {
+          _activePage++;
+          _pageController.animateToPage(
+            _activePage,
+            duration: const Duration(milliseconds: 350),
+            curve: Curves.easeIn,
+          );
+        } else {
+          _activePage = 0;
+        }
       }
     });
     super.initState();
@@ -120,7 +123,11 @@ class _MovieTabState extends State<MovieTab> {
                 ))
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: indicators(4, _activePage),
+                children: indicators(
+                    state.listNowPlayingMovies.length < 6
+                        ? state.listNowPlayingMovies.length
+                        : 6,
+                    _activePage),
               ),
         Padding(
           padding: const EdgeInsets.only(
@@ -165,7 +172,9 @@ class _MovieTabState extends State<MovieTab> {
       height: 300,
       width: double.infinity,
       child: PageView.builder(
-        itemCount: 4,
+        itemCount: state.listNowPlayingMovies.length < 6
+            ? state.listNowPlayingMovies.length
+            : 6,
         pageSnapping: true,
         controller: _pageController,
         onPageChanged: (page) {
@@ -200,79 +209,99 @@ class _MovieTabState extends State<MovieTab> {
 
   Widget slider(List<Movie> movies, pagePosition, active) {
     var movie = movies[pagePosition];
-    return Stack(
-      children: [
-        AnimatedContainer(
-          duration: const Duration(milliseconds: 500),
-          curve: Curves.easeInOutCubic,
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              fit: BoxFit.cover,
-              image: NetworkImage(
-                ASSET_URL + movie.backdropPath,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          createRoute(
+            BlocProvider<DetailBloc>(
+              create: (context) => DetailBloc(
+                repository: context.read<AppRepository>(),
+              )..add(GetDetailMovie(id: movie.id, type: 'movie')),
+              child: DetailPage(
+                id: movie.id,
+                type: 'movie',
               ),
             ),
           ),
-        ),
-        Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: FractionalOffset.topCenter,
-              end: FractionalOffset.bottomCenter,
-              colors: [
-                AppColors.primary.withOpacity(0.3),
-                AppColors.primary,
-              ],
-              stops: const [0.0, 1.0],
+        );
+      },
+      child: Stack(
+        children: [
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeInOutCubic,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                fit: BoxFit.cover,
+                image: NetworkImage(
+                  movie.backdropPath.isNotEmpty
+                      ? ASSET_URL + movie.backdropPath
+                      : 'https://upload.wikimedia.org/wikipedia/commons/b/b9/No_Cover.jpg',
+                ),
+              ),
             ),
           ),
-        ),
-        Positioned(
-          bottom: 20,
-          width: SizeConfig.screenWidth,
-          child: Padding(
-            padding: const EdgeInsets.only(
-              left: 16,
-              right: 16,
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: FractionalOffset.topCenter,
+                end: FractionalOffset.bottomCenter,
+                colors: [
+                  AppColors.primary.withOpacity(0.3),
+                  AppColors.primary,
+                ],
+                stops: const [0.0, 1.0],
+              ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const CustomText(text: 'Now Playing'),
-                    const SizedBox(
-                      width: 2,
-                    ),
-                    Container(
-                      width: 5,
-                      height: 5,
-                      margin: const EdgeInsets.only(bottom: 2, left: 4),
-                      decoration: const BoxDecoration(
-                        color: Colors.red,
-                        shape: BoxShape.circle,
+          ),
+          Positioned(
+            bottom: 20,
+            width: SizeConfig.screenWidth,
+            child: Padding(
+              padding: const EdgeInsets.only(
+                left: 16,
+                right: 16,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const CustomText(text: 'Now Playing Movies'),
+                      const SizedBox(
+                        width: 2,
                       ),
-                    )
-                  ],
-                ),
-                CustomText(
-                  text: movie.title,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                ),
-              ],
+                      Container(
+                        width: 5,
+                        height: 5,
+                        margin: const EdgeInsets.only(bottom: 2, left: 4),
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                      )
+                    ],
+                  ),
+                  CustomText(
+                    text: movie.title,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-        Positioned(
-          top: -40,
-          left: -20,
-          child: Image.asset(
-            'assets/icons/logo.png',
-            width: 150,
-          ),
-        )
-      ],
+          Positioned(
+            top: -40,
+            left: -20,
+            child: Image.asset(
+              'assets/icons/logo.png',
+              width: 150,
+            ),
+          )
+        ],
+      ),
     );
   }
 
@@ -281,7 +310,7 @@ class _MovieTabState extends State<MovieTab> {
       margin: const EdgeInsets.only(top: 16),
       child: Column(
         children: [
-          _titleOfListWidget('Recommended'),
+          _titleOfListWidget('Upcoming', state.listUpcomingMovies),
           _listOfMoviesWidget(state: state, listMovie: state.listUpcomingMovies)
         ],
       ),
@@ -293,7 +322,7 @@ class _MovieTabState extends State<MovieTab> {
       margin: const EdgeInsets.only(top: 16),
       child: Column(
         children: [
-          _titleOfListWidget('Popular In Cinemas'),
+          _titleOfListWidget('Popular In Cinemas', state.listPopularMovies),
           _listOfMoviesWidget(state: state, listMovie: state.listPopularMovies)
         ],
       ),
@@ -306,7 +335,7 @@ class _MovieTabState extends State<MovieTab> {
       margin: const EdgeInsets.only(top: 12),
       height: 180,
       child: ListView.separated(
-        itemCount: 4,
+        itemCount: listMovie.length < 6 ? listMovie.length : 6,
         shrinkWrap: true,
         scrollDirection: Axis.horizontal,
         itemBuilder: (context, index) {
@@ -328,6 +357,7 @@ class _MovieTabState extends State<MovieTab> {
 
   GestureDetector _listOfMoviesLoad(
       BuildContext context, int index, List<Movie> listMovie) {
+    var movie = listMovie[index];
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -336,26 +366,86 @@ class _MovieTabState extends State<MovieTab> {
             BlocProvider<DetailBloc>(
               create: (context) => DetailBloc(
                 repository: context.read<AppRepository>(),
-              )..add(GetDetailMovie(id: listMovie[index].id)),
+              )..add(GetDetailMovie(id: movie.id, type: 'movie')),
               child: DetailPage(
-                id: listMovie[index].id,
+                id: movie.id,
+                type: 'movie',
               ),
             ),
           ),
         );
       },
-      child: Container(
-        width: 130,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          image: DecorationImage(
-            image: NetworkImage(
-              ASSET_URL + listMovie[index].posterPath,
+      child: Stack(
+        children: [
+          Container(
+            width: 130,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              image: DecorationImage(
+                image: NetworkImage(
+                  movie.posterPath.isNotEmpty
+                      ? ASSET_URL + movie.posterPath
+                      : 'https://upload.wikimedia.org/wikipedia/commons/b/b9/No_Cover.jpg',
+                ),
+                fit: BoxFit.cover,
+                repeat: ImageRepeat.noRepeat,
+              ),
             ),
-            fit: BoxFit.cover,
-            repeat: ImageRepeat.noRepeat,
           ),
-        ),
+          Positioned(
+            bottom: 0,
+            child: Container(
+              width: SizeConfig.screenWidth,
+              height: 80,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: FractionalOffset.topCenter,
+                  end: FractionalOffset.bottomCenter,
+                  colors: [
+                    AppColors.primary.withOpacity(0.1),
+                    AppColors.primary,
+                  ],
+                  stops: const [0.0, 1.0],
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 10,
+            width: SizeConfig.screenWidth! / 2.8,
+            child: Padding(
+              padding: const EdgeInsets.only(
+                left: 4,
+                right: 16,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CustomText(
+                    textAlign: TextAlign.left,
+                    text: movie.title,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  Row(
+                    children: [
+                      CustomText(
+                        text: movie.voteAverage,
+                        fontSize: 12,
+                        textAlign: TextAlign.left,
+                      ),
+                      Icon(
+                        Icons.star,
+                        color: AppColors.secondary,
+                        size: 16,
+                      )
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          )
+        ],
       ),
     );
   }
@@ -375,7 +465,7 @@ class _MovieTabState extends State<MovieTab> {
     );
   }
 
-  Row _titleOfListWidget(String title) {
+  Row _titleOfListWidget(String title, List<Movie> listMovie) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -383,10 +473,20 @@ class _MovieTabState extends State<MovieTab> {
           text: title,
           fontWeight: FontWeight.w500,
         ),
-        CustomText(
-          text: 'See all',
-          color: AppColors.secondary,
-          fontWeight: FontWeight.w400,
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              createRoute(
+                SeeAllMovie(listMovie: listMovie, title: title),
+              ),
+            );
+          },
+          child: CustomText(
+            text: 'See all',
+            color: AppColors.secondary,
+            fontWeight: FontWeight.w400,
+          ),
         )
       ],
     );

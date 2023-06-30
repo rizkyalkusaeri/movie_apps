@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:movie_apps/blocs/movie/movie_bloc.dart';
 import 'package:movie_apps/blocs/movie/movie_event.dart';
+import 'package:movie_apps/blocs/tv/tv_bloc.dart';
+import 'package:movie_apps/blocs/tv/tv_event.dart';
 import 'package:movie_apps/data/app_repository.dart';
 import 'package:movie_apps/data/app_services.dart';
 import 'package:movie_apps/pages/splash_page.dart';
@@ -32,6 +34,11 @@ class MyApp extends StatelessWidget {
             create: (context) => MovieBloc(
               repository: context.read<AppRepository>(),
             )..add(GetMovies()),
+          ),
+          BlocProvider<TvBloc>(
+            create: (context) => TvBloc(
+              repository: context.read<AppRepository>(),
+            )..add(GetTelevisions()),
           )
         ],
         child: MaterialApp(
@@ -56,7 +63,7 @@ class MyApp extends StatelessWidget {
                 color: AppColors.title,
               ),
               iconTheme: IconThemeData(
-                color: AppColors.primary,
+                color: AppColors.white,
               ),
             ),
             primaryTextTheme: TextTheme(

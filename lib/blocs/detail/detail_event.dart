@@ -7,9 +7,10 @@ class DetailEvent extends Equatable {
 
 class GetDetailMovie extends DetailEvent {
   final int id;
+  final String type;
 
-  GetDetailMovie({required this.id});
+  GetDetailMovie({required this.id, required this.type});
 
   @override
-  List<Object?> get props => [id];
+  List<Object?> get props => [id, type];
 }
